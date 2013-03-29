@@ -7,7 +7,6 @@ class Queue
   def initialize
     @list = []
     @mutex = Mutex.new
-    @counter = 0
   end
 
   # push new task in the pool
@@ -15,8 +14,7 @@ class Queue
     raise QueueException, "Incorrect data type" unless valid? task
 
     @mutex.synchronize do
-      @list << [@counter, task.finish_at, task]
-      @counter += 1
+      @list << task
     end
 
     true
@@ -48,7 +46,7 @@ class Queue
     return nil if @list.empty?
 
     @mutex.synchronize do
-      nl = @list.sort_by{|x| [x[1], x[0]]}
+      nl = @list.sort_by{|x| x.finish_at}
       pos = yield(nl[0])
 
       unless pos.nil?
