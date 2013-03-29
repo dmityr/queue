@@ -21,6 +21,7 @@ class Queue
 
     true
   end
+  alias << push
 
   def get_task finish_at
   end
