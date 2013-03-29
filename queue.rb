@@ -26,7 +26,7 @@ class Queue
   def get_task finish_at
     current_time = Time.new
 
-    extract_task do |task|
+    quick_extract_task do |task|
       task.finish_at < current_time || task.finish_at == finish_at
     end
   end
@@ -34,7 +34,7 @@ class Queue
   def pop
     current_time = Time.new
 
-    extract_task do |task|
+    quick_extract_task do |task|
       task.finish_at < current_time
     end
   end
@@ -56,6 +56,30 @@ class Queue
       else
         nil
       end
+    end
+  end
+
+  def quick_extract_task
+    return nil if @list.empty?
+
+    @mutex.synchronize do
+      finish_at, task_id, counter = nil, nil, 0
+      @list.each do |task|
+        if yield(task)
+          if finish_at.nil?
+            finish_at = task.finish_at
+            task_id = counter
+          else
+            if task.finish_at < finish_at
+              finish_at = task.finish_at
+              task_id = counter
+            end
+          end
+        end
+        counter += 1
+      end
+
+      @list.delete_at(task_id) if task_id
     end
   end
 
