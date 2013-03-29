@@ -5,6 +5,9 @@ class Queue
   attr_reader :list
 
   def initialize
+    @list = []
+    @mutex = Mutex.new
+    @counter = 0
   end
 
   def push task
