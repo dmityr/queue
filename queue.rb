@@ -25,9 +25,7 @@ class Queue
     current_time = Time.new
 
     extract_task do |task|
-      if task[1] < current_time || task[1] == finish_at
-        task[0]
-      end
+      task.finish_at < current_time || task.finish_at == finish_at
     end
   end
 
@@ -35,9 +33,7 @@ class Queue
     current_time = Time.new
 
     extract_task do |task|
-      if task[1] < current_time
-        task[0]
-      end
+      task.finish_at < current_time
     end
   end
 
@@ -46,12 +42,13 @@ class Queue
     return nil if @list.empty?
 
     @mutex.synchronize do
-      nl = @list.sort_by{|x| x.finish_at}
-      pos = yield(nl[0])
+      @list.sort_by!{|x| x.finish_at}
+      valid = yield(@list[0])
 
-      unless pos.nil?
-        valid_element = @list.delete_at(pos)
-        valid_element[2]
+      if valid
+        @list.delete_at(0)
+      else
+        nil
       end
     end
   end
