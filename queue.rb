@@ -1,3 +1,6 @@
+class QueueError < Exception
+end
+
 class Queue
   attr_reader :list
 
