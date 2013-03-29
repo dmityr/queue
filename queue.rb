@@ -40,6 +40,7 @@ class Queue
   end
 
   private
+  # base extract
   def extract_task
     return nil if @list.empty?
 
@@ -59,24 +60,24 @@ class Queue
     end
   end
 
+  # quick extract
   def quick_extract_task
     return nil if @list.empty?
 
     @mutex.synchronize do
-      finish_at, task_id, counter = nil, nil, 0
-      @list.each do |task|
+      finish_at, task_id = nil, nil
+      @list.each_with_index do |task, i|
         if yield(task)
           if finish_at.nil?
             finish_at = task.finish_at
-            task_id = counter
+            task_id = i
           else
             if task.finish_at < finish_at
               finish_at = task.finish_at
-              task_id = counter
+              task_id = i
             end
           end
         end
-        counter += 1
       end
 
       @list.delete_at(task_id) if task_id
