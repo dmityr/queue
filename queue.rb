@@ -7,6 +7,7 @@ class Queue
   def initialize
     @list = []
     @mutex = Mutex.new
+    @list_sorted = true
   end
 
   # push new task in the pool
@@ -15,6 +16,7 @@ class Queue
 
     @mutex.synchronize do
       @list << task
+      @list_sorted = false
     end
 
     true
@@ -42,7 +44,11 @@ class Queue
     return nil if @list.empty?
 
     @mutex.synchronize do
-      @list.sort_by!{|x| x.finish_at}
+      if @list_sorted == false
+        @list.sort_by!{|x| x.finish_at}
+        @list_sorted = true
+      end
+
       valid = yield(@list[0])
 
       if valid
