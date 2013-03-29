@@ -30,6 +30,16 @@ class Queue
   end
 
   private
+  def extract_task
+    return nil if @list.empty?
+
+    @mutex.synchronize do
+      nl = @list.sort_by{|x| [x[1], x[0]]}
+      pos = yield(b.arity != 0 ? nl : nil)
+      nl.delete_at(pos)
+    end
+  end
+
   def valid? task
     task.class == Task
   end
