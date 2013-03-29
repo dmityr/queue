@@ -26,7 +26,7 @@ class Queue
   def get_task finish_at
     current_time = Time.new
 
-    exrtact_task do |task|
+    extract_task do |task|
       if task[1] < current_time || task[1] == finish_at
         task[0]
       end
