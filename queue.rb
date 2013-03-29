@@ -1,4 +1,4 @@
-class QueueError < Exception
+class QueueException < Exception
 end
 
 class Queue
@@ -12,7 +12,7 @@ class Queue
 
   # push new task in the pool
   def push task
-    raise QueueError, "Incorrect data type" unless valid? task
+    raise QueueException, "Incorrect data type" unless valid? task
 
     @mutex.synchronize do
       @list << [@counter, task.finish_at, task]
