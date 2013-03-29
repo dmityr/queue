@@ -28,13 +28,15 @@ class TestQueue < MiniTest::Unit::TestCase
   end
 
   def test_outdated_task
+    tasks = []
+
     # create task with known time
     known_time = Time.new + 3600
-    @queue << Task.new(known_time, "Task with known time")
+    tasks << Task.new(known_time, "Task with known time")
 
     #generate actual tasks
     100.times do |i|
-      @queue << Task.new(Time.new + 3600*24*(1+rand(20)), "Typical Task_#{i} in the future")
+      tasks << Task.new(Time.new + 3600*24*(1+rand(20)), "Typical Task_#{i} in the future")
     end
 
     # create outdated tasks
@@ -42,8 +44,10 @@ class TestQueue < MiniTest::Unit::TestCase
     task_2 = Task.new(Time.new(2010, 1, 2), "Hey! I am outdated task too")
 
 
-    @queue << task_1
-    @queue << task_2
+    tasks << task_1
+    tasks << task_2
+
+    tasks.shuffle.each{|t| @queue << t}
 
     assert_equal task_1, @queue.pop
     assert_equal task_2, @queue.get_task(known_time)
@@ -80,12 +84,40 @@ class TestQueue < MiniTest::Unit::TestCase
     assert_equal nil, @queue.get_task(known_time)
   end
 
+  def test_pop_task_wo_outdated
+    #generate actual tasks
+    10.times do |i|
+      @queue << Task.new(Time.new + 3600*24*(1+rand(20)), "Typical Task_#{i} in the future")
+    end
+
+    assert_equal nil, @queue.pop
+  end
+
+  def test_count_task_after_get_task
+    time_1 = Time.new - 3600
+    task_1 = Task.new(time_1, "Old task")
+
+    time_2 = Time.new - 3600*2
+    task_2 = Task.new(time_2, "Very old task")
+
+    @queue << task_1
+    @queue << task_2
+
+    assert_equal 2, @queue.list.size
+    assert_equal task_2, @queue.get_task(time_2)
+    assert_equal 1, @queue.list.size
+    assert_equal task_1, @queue.get_task(time_1)
+    assert_equal 0, @queue.list.size
+    assert_equal nil, @queue.pop
+  end
+
   def test_count_task_after_pop
     task_1 = Task.new(Time.new - 3600, "Old task")
     task_2 = Task.new(Time.new - 3600*2, "Very old task")
     @queue << task_1
     @queue << task_2
 
+    assert_equal 2, @queue.list.size
     assert_equal task_2, @queue.pop
     assert_equal 1, @queue.list.size
     assert_equal task_1, @queue.pop
