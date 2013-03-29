@@ -27,7 +27,7 @@ class TestQueue < MiniTest::Unit::TestCase
     assert_equal true, @queue.pop.is_a?(Task)
   end
 
-  def test_outdated_task
+  def test_w_outdated_task
     tasks = []
 
     # create task with known time
@@ -55,19 +55,19 @@ class TestQueue < MiniTest::Unit::TestCase
     assert_equal known_task, @queue.get_task(known_time)
   end
 
-  def test_empty_queue
-    known_time = Time.new + 3600
-
-    assert_equal nil, @queue.get_task(known_time)
-    assert_equal nil, @queue.pop
-  end
-
   def test_wo_outdated
     known_time = Time.new + 3600
 
     10.times do |i|
       @queue << Task.new(Time.new + 3600*(2+rand(4)), "Task_#{i}")
     end
+
+    assert_equal nil, @queue.get_task(known_time)
+    assert_equal nil, @queue.pop
+  end
+
+  def test_empty_queue
+    known_time = Time.new + 3600
 
     assert_equal nil, @queue.get_task(known_time)
     assert_equal nil, @queue.pop
