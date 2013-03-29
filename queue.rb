@@ -45,7 +45,7 @@ class Queue
 
     @mutex.synchronize do
       if @list_sorted == false
-        @list.sort_by!{|x| x.finish_at}
+        @list.sort_by!{|task| task.finish_at}
         @list_sorted = true
       end
 
