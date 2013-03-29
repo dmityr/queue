@@ -37,7 +37,7 @@ class Queue
     current_time = Time.new
 
     extract_task do |task|
-      if task < current_time
+      if task[1] < current_time
         task[0]
       end
     end
@@ -51,7 +51,10 @@ class Queue
       nl = @list.sort_by{|x| [x[1], x[0]]}
       pos = yield(nl[0])
 
-      @list.delete_at(pos) unless pos.nil?
+      unless pos.nil?
+        valid_element = @list.delete_at(pos)
+        valid_element[2]
+      end
     end
   end
 
