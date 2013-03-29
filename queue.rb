@@ -13,6 +13,13 @@ class Queue
   # push new task in the pool
   def push task
     raise QueueError, "Incorrect data type" unless valid? task
+
+    @mutex.synchronize do
+      @list << [@counter, task.finish_at, task]
+      @counter += 1
+    end
+
+    true
   end
 
   def get_task finish_at
