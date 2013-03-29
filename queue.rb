@@ -34,6 +34,8 @@ class Queue
   end
 
   def pop
+    current_time = Time.new
+
     extract_task do |task|
       if task < current_time
         task[0]
